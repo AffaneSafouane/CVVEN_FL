@@ -108,15 +108,3 @@ python init_db.py
 Cela créera un utilisateur administrateur par défaut :
 - Email : admin@example.com
 - Mot de passe : admin123
-
-## Déploiement
-
-L'application peut être déployée sur n'importe quelle plateforme supportant Python, comme Heroku, AWS, ou Digital Ocean. Assurez-vous de configurer correctement les variables d'environnement sur votre serveur de production.
-
-## Contribuer
-
-Les contributions sont les bienvenues ! N'hésitez pas à ouvrir une issue ou soumettre une pull request pour améliorer ce projet.
-
-## Licence
-
-Ce projet est sous licence MIT.
