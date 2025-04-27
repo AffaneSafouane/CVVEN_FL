@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <!-- Hero section -->
+    <div class="row py-5">
+        <div class="col-md-6 d-flex align-items-center">
+            <div>
+                <h1 class="display-4 fw-bold">Découvrez et réservez des activités passionnantes</h1>
+                <p class="lead mt-3">
+                    Explorez notre sélection d'activités variées et faites le plein d'expériences inoubliables. 
+                    Réservez facilement et profitez de moments uniques.
+                </p>
+                <div class="mt-4">
+                    <a href="{{ url_for('activity.list_activities') }}" class="btn btn-primary btn-lg">
+                        Découvrir les activités
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <img src="{{ url_for('static', filename='images/hero-image.jpg') }}" class="img-fluid rounded shadow" alt="Activités">
+        </div>
+    </div>
+
+    <!-- Featured Categories -->
+    <div class="my-5">
+        <h2 class="text-center mb-4">Nos catégories d'activités</h2>
+        <div class="row g-4">
+            {% for category in categories %}
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="fas {{ category.icon }} fa-3x mb-3 text-primary"></i>
+                        <h4 class="card-title">{{ category.name }}</h4>
+                        <p class="card-text">{{ category.description }}</p>
+                        <a href="{{ url_for('activity.activities_by_category', category_id=category.id) }}" class="btn btn-outline-primary">Voir les activités</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Featured Activities -->
+    <div class="my-5">
+        <h2 class="text-center mb-4">Activités populaires</h2>
+        <div class="row g-4">
+            {% for activity in featured_activities %}
+            <div class="col-md-4">
+                <div class="card h-100">
+                    {% if activity.image_url %}
+                    <img src="{{ url_for('static', filename='uploads/' + activity.image_url) }}" class="card-img-top" alt="{{ activity.title }}">
+                    {% else %}
+                    <img src="{{ url_for('static', filename='images/placeholder.jpg') }}" class="card-img-top" alt="{{ activity.title }}">
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ activity.title }}</h5>
+                        <p class="card-text">{{ activity.description|truncate(100) }}</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="badge bg-primary">{{ activity.price|float }}€</span>
+                            <a href="{{ url_for('activity.activity_detail', id=activity.id) }}" class="btn btn-sm btn-outline-primary">Voir détails</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="text-center mt-4">
+            <a href="{{ url_for('activity.list_activities') }}" class="btn btn-primary">Voir toutes les activités</a>
+        </div>
+    </div>
+
+    <!-- How it works -->
+    <div class="my-5 py-5 bg-light rounded">
+        <div class="container">
+            <h2 class="text-center mb-5">Comment ça marche</h2>
+            <div class="row g-4">
+                <div class="col-md-4 text-center">
+                    <div class="mb-3">
+                        <i class="fas fa-search fa-3x text-primary"></i>
+                    </div>
+                    <h4>1. Parcourez les activités</h4>
+                    <p>Explorez notre catalogue et trouvez l'activité qui vous correspond.</p>
+                </div>
+                <div class="col-md-4 text-center">
+                    <div class="mb-3">
+                        <i class="fas fa-calendar-alt fa-3x text-primary"></i>
+                    </div>
+                    <h4>2. Choisissez une date</h4>
+                    <p>Sélectionnez un créneau horaire disponible qui vous convient.</p>
+                </div>
+                <div class="col-md-4 text-center">
+                    <div class="mb-3">
+                        <i class="fas fa-check-circle fa-3x text-primary"></i>
+                    </div>
+                    <h4>3. Réservez et profitez</h4>
+                    <p>Confirmez votre réservation et préparez-vous à vivre une expérience unique.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Testimonials -->
+    <div class="my-5">
+        <h2 class="text-center mb-4">Ce que disent nos clients</h2>
+        <div class="row g-4">
+            {% for testimonial in testimonials %}
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="mb-3">
+                            {% for i in range(testimonial.rating) %}
+                            <i class="fas fa-star text-warning"></i>
+                            {% endfor %}
+                            {% for i in range(5 - testimonial.rating) %}
+                            <i class="far fa-star text-warning"></i>
+                            {% endfor %}
+                        </div>
+                        <p class="card-text">{{ testimonial.comment }}</p>
+                        <div class="d-flex align-items-center mt-3">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-user-circle fa-2x text-secondary"></i>
+                            </div>
+                            <div class="ms-3">
+                                <h6 class="mb-0">{{ testimonial.name }}</h6>
+                                <small class="text-muted">{{ testimonial.activity }}</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

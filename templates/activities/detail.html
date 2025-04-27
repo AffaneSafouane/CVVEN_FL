@@ -1,0 +1,214 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <!-- Bouton de retour -->
+    <div class="mb-4">
+        <a href="{{ url_for('activity.list_activities') }}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i> Retour aux activités
+        </a>
+    </div>
+    
+    <div class="row">
+        <!-- Détails de l'activité -->
+        <div class="col-lg-8">
+            <div class="card shadow mb-4">
+                {% if activity.image_url %}
+                <img src="{{ url_for('static', filename='uploads/' + activity.image_url) }}" class="card-img-top img-fluid" alt="{{ activity.title }}">
+                {% else %}
+                <img src="{{ url_for('static', filename='images/default-activity.jpg') }}" class="card-img-top img-fluid" alt="{{ activity.title }}">
+                {% endif %}
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h1 class="card-title">{{ activity.title }}</h1>
+                        <span class="badge bg-primary fs-5">{{ activity.price|float }}€</span>
+                    </div>
+                    
+                    <div class="mb-3">
+                        {% if activity.average_rating > 0 %}
+                        <div class="mb-2">
+                            {% for i in range(1, 6) %}
+                                {% if i <= activity.average_rating|round(0, 'common') %}
+                                <i class="fas fa-star text-warning"></i>
+                                {% else %}
+                                <i class="far fa-star text-warning"></i>
+                                {% endif %}
+                            {% endfor %}
+                            <span class="ms-1 text-muted">({{ activity.reviews|length }} avis)</span>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="d-flex flex-wrap">
+                            {% if activity.category %}
+                            <span class="badge bg-secondary me-2 mb-1">
+                                <i class="fas fa-tag me-1"></i> {{ activity.category.name }}
+                            </span>
+                            {% endif %}
+                            <span class="badge bg-info text-dark me-2 mb-1">
+                                <i class="fas fa-clock me-1"></i> {{ activity.duration }} min
+                            </span>
+                            <span class="badge bg-success me-2 mb-1">
+                                <i class="fas fa-map-marker-alt me-1"></i> {{ activity.location }}
+                            </span>
+                            <span class="badge bg-warning text-dark me-2 mb-1">
+                                <i class="fas fa-users me-1"></i> Max {{ activity.max_participants }} participants
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <h5 class="mt-4">Description</h5>
+                    <p class="card-text">{{ activity.description }}</p>
+                    
+                    <!-- Boutons d'action admin -->
+                    {% if current_user.is_authenticated and current_user.role == 'admin' %}
+                    <div class="mt-4">
+                        <a href="{{ url_for('activity.edit_activity', id=activity.id) }}" class="btn btn-warning me-2">
+                            <i class="fas fa-edit me-1"></i> Modifier
+                        </a>
+                        <a href="{{ url_for('admin.manage_time_slots', id=activity.id) }}" class="btn btn-primary me-2">
+                            <i class="fas fa-clock me-1"></i> Gérer les créneaux
+                        </a>
+                        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                            <i class="fas fa-trash-alt me-1"></i> Supprimer
+                        </button>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Section Avis -->
+            <div class="card shadow mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Avis et commentaires</h5>
+                </div>
+                <div class="card-body">
+                    {% if activity.reviews %}
+                    <div class="mb-4">
+                        {% for review in activity.reviews %}
+                        <div class="border-bottom mb-3 pb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <div>
+                                    <strong>{{ review.user.name }}</strong>
+                                    <small class="text-muted ms-2">{{ review.created_at.strftime('%d/%m/%Y') }}</small>
+                                </div>
+                                <div>
+                                    {% for i in range(1, 6) %}
+                                        {% if i <= review.rating %}
+                                        <i class="fas fa-star text-warning"></i>
+                                        {% else %}
+                                        <i class="far fa-star text-warning"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% if review.comment %}
+                            <p class="mb-0">{{ review.comment }}</p>
+                            {% else %}
+                            <p class="text-muted mb-0"><i>Pas de commentaire</i></p>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="text-center text-muted">
+                        Aucun avis pour le moment. Soyez le premier à donner votre avis !
+                    </p>
+                    {% endif %}
+                    
+                    <!-- Formulaire d'avis -->
+                    {% if current_user.is_authenticated %}
+                    <div class="mt-3">
+                        <h5>Donnez votre avis</h5>
+                        <form method="POST" action="{{ url_for('activity.add_review', id=activity.id) }}">
+                            {{ review_form.hidden_tag() }}
+                            <div class="mb-3">
+                                {{ review_form.rating.label(class="form-label") }}
+                                {{ review_form.rating(class="form-select") }}
+                            </div>
+                            <div class="mb-3">
+                                {{ review_form.comment.label(class="form-label") }}
+                                {{ review_form.comment(class="form-control", rows=3) }}
+                            </div>
+                            {{ review_form.submit(class="btn btn-primary") }}
+                        </form>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i> Veuillez vous <a href="{{ url_for('auth.login') }}">connecter</a> pour laisser un avis.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Sidebar pour réservation -->
+        <div class="col-lg-4">
+            <div class="card shadow sticky-top" style="top: 20px;">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Réserver cette activité</h5>
+                </div>
+                <div class="card-body">
+                    {% if time_slots %}
+                    <p class="mb-3">
+                        <i class="fas fa-calendar-alt me-2"></i> Prochains créneaux disponibles :
+                    </p>
+                    <div class="list-group mb-4">
+                        {% for slot in time_slots[:5] %}
+                        <a href="{{ url_for('reservation.book_activity', activity_id=activity.id) }}" class="list-group-item list-group-item-action">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>{{ slot.start_time.strftime('%d/%m/%Y') }}</strong>
+                                    <div>{{ slot.start_time.strftime('%H:%M') }} - {{ slot.end_time.strftime('%H:%M') }}</div>
+                                </div>
+                                <span class="badge bg-success">{{ slot.available_slots }} places</span>
+                            </div>
+                        </a>
+                        {% endfor %}
+                    </div>
+                    
+                    {% if current_user.is_authenticated %}
+                    <div class="d-grid">
+                        <a href="{{ url_for('reservation.book_activity', activity_id=activity.id) }}" class="btn btn-primary">
+                            <i class="fas fa-calendar-check me-2"></i> Réserver maintenant
+                        </a>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info mb-3">
+                        <i class="fas fa-info-circle me-2"></i> Veuillez vous <a href="{{ url_for('auth.login') }}">connecter</a> pour réserver.
+                    </div>
+                    {% endif %}
+                    
+                    {% else %}
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i> Aucun créneau disponible pour le moment.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de confirmation de suppression -->
+{% if current_user.is_authenticated and current_user.role == 'admin' %}
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">Confirmer la suppression</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Êtes-vous sûr de vouloir supprimer cette activité ? Cette action est irréversible.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <form action="{{ url_for('activity.delete_activity', id=activity.id) }}" method="POST">
+                    <button type="submit" class="btn btn-danger">Supprimer</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

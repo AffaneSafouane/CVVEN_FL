@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Bouton de retour -->
+            <div class="mb-4">
+                <a href="{{ url_for('reservation.my_reservations') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-1"></i> Retour à mes réservations
+                </a>
+            </div>
+            
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">Détails de la réservation</h4>
+                    <span class="badge {% if reservation.status == 'confirmed' %}bg-success{% elif reservation.status == 'pending' %}bg-warning text-dark{% else %}bg-danger{% endif %}">
+                        {% if reservation.status == 'confirmed' %}
+                            {% if reservation.time_slot.start_time > now %}
+                                Confirmée
+                            {% else %}
+                                Terminée
+                            {% endif %}
+                        {% elif reservation.status == 'pending' %}
+                            En attente
+                        {% else %}
+                            Annulée
+                        {% endif %}
+                    </span>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            {% if reservation.activity.image_url %}
+                            <img src="{{ url_for('static', filename='uploads/' + reservation.activity.image_url) }}" class="img-fluid rounded" alt="{{ reservation.activity.title }}">
+                            {% else %}
+                            <img src="{{ url_for('static', filename='images/default-activity.jpg') }}" class="img-fluid rounded" alt="{{ reservation.activity.title }}">
+                            {% endif %}
+                        </div>
+                        <div class="col-md-8">
+                            <h5>
+                                <a href="{{ url_for('activity.activity_detail', id=reservation.activity.id) }}">
+                                    {{ reservation.activity.title }}
+                                </a>
+                            </h5>
+                            
+                            <div class="mt-3">
+                                <p class="mb-1">
+                                    <i class="fas fa-calendar-alt me-2 text-primary"></i>
+                                    <strong>Date:</strong> {{ reservation.time_slot.start_time.strftime('%d/%m/%Y') }}
+                                </p>
+                                <p class="mb-1">
+                                    <i class="fas fa-clock me-2 text-primary"></i>
+                                    <strong>Heure:</strong> 
+                                    {{ reservation.time_slot.start_time.strftime('%H:%M') }} - 
+                                    {{ reservation.time_slot.end_time.strftime('%H:%M') }}
+                                </p>
+                                <p class="mb-1">
+                                    <i class="fas fa-map-marker-alt me-2 text-primary"></i>
+                                    <strong>Lieu:</strong> {{ reservation.activity.location }}
+                                </p>
+                                <p class="mb-1">
+                                    <i class="fas fa-users me-2 text-primary"></i>
+                                    <strong>Participants:</strong> {{ reservation.participants }}
+                                </p>
+                                <p class="mb-1">
+                                    <i class="fas fa-receipt me-2 text-primary"></i>
+                                    <strong>Prix total:</strong> 
+                                    {{ (reservation.activity.price * reservation.participants)|float }}€
+                                </p>
+                                <p class="mb-1">
+                                    <i class="fas fa-info-circle me-2 text-primary"></i>
+                                    <strong>Référence:</strong> 
+                                    <code>{{ reservation.id }}</code>
+                                </p>
+                                <p class="mb-1">
+                                    <i class="fas fa-calendar-plus me-2 text-primary"></i>
+                                    <strong>Réservé le:</strong> 
+                                    {{ reservation.created_at.strftime('%d/%m/%Y %H:%M') }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <h5>Détails de l'activité</h5>
+                            <p>{{ reservation.activity.description }}</p>
+                            
+                            <div class="d-flex flex-wrap">
+                                {% if reservation.activity.category %}
+                                <span class="badge bg-secondary me-2 mb-1">
+                                    <i class="fas fa-tag me-1"></i> {{ reservation.activity.category.name }}
+                                </span>
+                                {% endif %}
+                                <span class="badge bg-info text-dark me-2 mb-1">
+                                    <i class="fas fa-clock me-1"></i> Durée: {{ reservation.activity.duration }} min
+                                </span>
+                                <span class="badge bg-warning text-dark me-2 mb-1">
+                                    <i class="fas fa-users me-1"></i> Max {{ reservation.activity.max_participants }} participants
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Actions -->
+                    <div class="mt-4">
+                        {% if reservation.status != 'cancelled' and reservation.time_slot.start_time > now %}
+                        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#cancelModal">
+                            <i class="fas fa-times me-1"></i> Annuler la réservation
+                        </button>
+                        {% endif %}
+
+                        {% if reservation.status == 'confirmed' and reservation.time_slot.start_time < now %}
+                        <a href="{{ url_for('activity.activity_detail', id=reservation.activity.id) }}#review-section" class="btn btn-primary">
+                            <i class="fas fa-star me-1"></i> Laisser un avis
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                {% if reservation.status != 'cancelled' and reservation.time_slot.start_time > now %}
+                <div class="card-footer bg-light">
+                    <div class="alert alert-info mb-0">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Note:</strong> Vous pouvez annuler votre réservation jusqu'à 24 heures avant le début de l'activité.
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de confirmation d'annulation -->
+<div class="modal fade" id="cancelModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">Confirmer l'annulation</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Êtes-vous sûr de vouloir annuler cette réservation ?</p>
+                <p class="mb-0"><strong>Activité :</strong> {{ reservation.activity.title }}</p>
+                <p class="mb-0"><strong>Date :</strong> {{ reservation.time_slot.start_time.strftime('%d/%m/%Y %H:%M') }}</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                <form action="{{ url_for('reservation.cancel_reservation', id=reservation.id) }}" method="POST">
+                    {{ cancellation_form.hidden_tag() }}
+                    {{ cancellation_form.reservation_id }}
+                    <button type="submit" class="btn btn-danger">Annuler la réservation</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

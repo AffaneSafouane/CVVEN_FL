@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4 mb-4">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Mon profil</h5>
+            </div>
+            <div class="card-body text-center">
+                <div class="mb-3">
+                    <i class="fas fa-user-circle fa-5x text-primary"></i>
+                </div>
+                <h5>{{ current_user.name }}</h5>
+                <p class="text-muted">{{ current_user.email }}</p>
+                <p>
+                    <span class="badge bg-primary">
+                        {% if current_user.role == 'admin' %}
+                        Administrateur
+                        {% else %}
+                        Utilisateur
+                        {% endif %}
+                    </span>
+                </p>
+                <p class="text-muted small">
+                    Membre depuis {{ current_user.created_at.strftime('%d/%m/%Y') }}
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-8">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Modifier mes informations</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="">
+                    {{ form.hidden_tag() }}
+                    <div class="mb-3">
+                        {{ form.name.label(class="form-label") }}
+                        {% if form.name.errors %}
+                            {{ form.name(class="form-control is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.name.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.name(class="form-control") }}
+                        {% endif %}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.email.label(class="form-label") }}
+                        {% if form.email.errors %}
+                            {{ form.email(class="form-control is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.email.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.email(class="form-control") }}
+                        {% endif %}
+                    </div>
+                    
+                    <hr class="my-4">
+                    <h6>Changer de mot de passe</h6>
+                    <div class="form-text mb-3">Laissez ces champs vides si vous ne souhaitez pas changer votre mot de passe.</div>
+                    
+                    <div class="mb-3">
+                        {{ form.current_password.label(class="form-label") }}
+                        {% if form.current_password.errors %}
+                            {{ form.current_password(class="form-control is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.current_password.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.current_password(class="form-control") }}
+                        {% endif %}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.new_password.label(class="form-label") }}
+                        {% if form.new_password.errors %}
+                            {{ form.new_password(class="form-control is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.new_password.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.new_password(class="form-control") }}
+                        {% endif %}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.confirm_password.label(class="form-label") }}
+                        {% if form.confirm_password.errors %}
+                            {{ form.confirm_password(class="form-control is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.confirm_password.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.confirm_password(class="form-control") }}
+                        {% endif %}
+                    </div>
+                    <div class="d-grid gap-2">
+                        {{ form.submit(class="btn btn-primary") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Historique des réservations -->
+<div class="card mt-4 shadow">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">Mes dernières réservations</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Activité</th>
+                        <th>Date</th>
+                        <th>Participants</th>
+                        <th>Statut</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for reservation in reservations %}
+                    <tr>
+                        <td>{{ reservation.activity.title }}</td>
+                        <td>{{ reservation.time_slot.start_time.strftime('%d/%m/%Y %H:%M') }}</td>
+                        <td>{{ reservation.participants }}</td>
+                        <td>
+                            {% if reservation.status == 'confirmed' %}
+                            <span class="badge bg-success">Confirmée</span>
+                            {% elif reservation.status == 'pending' %}
+                            <span class="badge bg-warning text-dark">En attente</span>
+                            {% else %}
+                            <span class="badge bg-danger">Annulée</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{{ url_for('reservation.reservation_detail', id=reservation.id) }}" class="btn btn-sm btn-outline-primary">
+                                Détails
+                            </a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center">Vous n'avez pas encore de réservations.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="text-center mt-3">
+            <a href="{{ url_for('reservation.my_reservations') }}" class="btn btn-outline-primary">
+                Voir toutes mes réservations
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

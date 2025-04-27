@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <div class="container mt-4">
+    <h1 class="mb-4">{{ title }}</h1>
+
+    <!-- General Statistics -->
+    <div class="row mb-4">
+      <div class="col-md-3">
+        <div class="card text-white bg-primary mb-3">
+          <div class="card-body">
+            <h5 class="card-title">Total Users</h5>
+            <p class="card-text">{{ total_users }}</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card text-white bg-success mb-3">
+          <div class="card-body">
+            <h5 class="card-title">Total Activities</h5>
+            <p class="card-text">{{ total_activities }}</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card text-white bg-info mb-3">
+          <div class="card-body">
+            <h5 class="card-title">Total Reservations</h5>
+            <p class="card-text">{{ total_reservations }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Reservations by Status -->
+    <h3 class="mb-4">Reservations by Status</h3>
+    <div class="row">
+      <div class="col-md-4">
+        <div class="card mb-3">
+          <div class="card-body">
+            <h5 class="card-title">Confirmed</h5>
+            <p class="card-text">{{ reservations_by_status['confirmed'] }}</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card mb-3">
+          <div class="card-body">
+            <h5 class="card-title">Pending</h5>
+            <p class="card-text">{{ reservations_by_status['pending'] }}</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card mb-3">
+          <div class="card-body">
+            <h5 class="card-title">Cancelled</h5>
+            <p class="card-text">{{ reservations_by_status['cancelled'] }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Most Popular Activities -->
+    <h3 class="mb-4">Top 10 Most Popular Activities</h3>
+    {% if popular_activities %}
+      <div class="list-group">
+        {% for activity in popular_activities %}
+          <a href="{{ url_for('admin.manage_activities') }}" class="list-group-item list-group-item-action d-flex justify-content-between">
+            {{ activity.activity.title }}
+            <span class="badge bg-primary rounded-pill">{{ activity.reservations }}</span>
+          </a>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p>No popular activities found.</p>
+    {% endif %}
+
+    <!-- Most Popular Categories -->
+    <h3 class="mt-4 mb-4">Most Popular Categories</h3>
+    {% if popular_categories %}
+      <div class="list-group">
+        {% for category in popular_categories %}
+          <a href="{{ url_for('admin.manage_activities') }}" class="list-group-item list-group-item-action d-flex justify-content-between">
+            {{ category.category.name }}
+            <span class="badge bg-success rounded-pill">{{ category.reservations }}</span>
+          </a>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p>No popular categories found.</p>
+    {% endif %}
+  </div>
+{% endblock %}

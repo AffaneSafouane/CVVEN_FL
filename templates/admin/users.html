@@ -1,0 +1,211 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4">Gestion des utilisateurs</h1>
+    
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Liste des utilisateurs</h5>
+            <form class="d-flex" method="GET">
+                <input class="form-control me-2" type="search" placeholder="Rechercher un utilisateur" aria-label="Search" name="search">
+                <button class="btn btn-light" type="submit">
+                    <i class="fas fa-search"></i>
+                </button>
+            </form>
+        </div>
+        <div class="card-body">
+            {% if users.items %}
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead class="table-primary">
+                        <tr>
+                            <th>Nom</th>
+                            <th>Email</th>
+                            <th>Rôle</th>
+                            <th>Inscription</th>
+                            <th>Réservations</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users.items %}
+                        <tr>
+                            <td>{{ user.name }}</td>
+                            <td>{{ user.email }}</td>
+                            <td>
+                                {% if user.role == 'admin' %}
+                                <span class="badge bg-danger">Admin</span>
+                                {% else %}
+                                <span class="badge bg-secondary">Utilisateur</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ user.created_at.strftime('%d/%m/%Y') }}</td>
+                            <td>
+                                <a href="{{ url_for('admin.manage_reservations', user=user.name) }}" class="badge bg-primary text-decoration-none">
+                                    {{ reservation_counts.get(user.id|string, 0) }}
+                                </a>
+                            </td>
+                            <td>
+                                {% if user.id != current_user.id %}
+                                <form action="{{ url_for('admin.toggle_admin_role', id=user.id) }}" method="POST" class="d-inline">
+                                    <button type="submit" class="btn btn-sm {% if user.role == 'admin' %}btn-warning{% else %}btn-success{% endif %}">
+                                        {% if user.role == 'admin' %}
+                                        <i class="fas fa-user me-1"></i> Rétrograder
+                                        {% else %}
+                                        <i class="fas fa-user-shield me-1"></i> Promouvoir
+                                        {% endif %}
+                                    </button>
+                                </form>
+                                {% else %}
+                                <button class="btn btn-sm btn-secondary" disabled>
+                                    <i class="fas fa-user-shield me-1"></i> Vous-même
+                                </button>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Pagination -->
+            {% if users.pages > 1 %}
+            <nav class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if users.has_prev %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('admin.manage_users', page=users.prev_num, **request.args) }}">
+                            &laquo; Précédent
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">&laquo; Précédent</span>
+                    </li>
+                    {% endif %}
+                    
+                    {% for page_num in users.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+                        {% if page_num %}
+                            {% if page_num == users.page %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ page_num }}</span>
+                            </li>
+                            {% else %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('admin.manage_users', page=page_num, **request.args) }}">
+                                    {{ page_num }}
+                                </a>
+                            </li>
+                            {% endif %}
+                        {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">...</span>
+                        </li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if users.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('admin.manage_users', page=users.next_num, **request.args) }}">
+                            Suivant &raquo;
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">Suivant &raquo;</span>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+            
+            {% else %}
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>
+                Aucun utilisateur trouvé.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Statistiques des utilisateurs -->
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Statistiques utilisateurs</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <h6>Répartition des rôles</h6>
+                        <div class="progress">
+                            {% set admin_percent = (admin_count / total_users * 100)|round %}
+                            <div class="progress-bar bg-danger" style="width: {{ admin_percent }}%">
+                                {{ admin_count }} Admins ({{ admin_percent }}%)
+                            </div>
+                            <div class="progress-bar bg-secondary" style="width: {{ 100 - admin_percent }}%">
+                                {{ total_users - admin_count }} Utilisateurs ({{ 100 - admin_percent }}%)
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h6>Utilisateurs récents</h6>
+                        <ul class="list-group">
+                            {% for user in recent_users %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                {{ user.name }}
+                                <span class="badge bg-primary rounded-pill">{{ user.created_at.strftime('%d/%m/%Y') }}</span>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Utilisateurs les plus actifs</h5>
+                </div>
+                <div class="card-body">
+                    {% if top_users %}
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Utilisateur</th>
+                                    <th>Réservations</th>
+                                    <th>Inscription</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for user in top_users %}
+                                <tr>
+                                    <td>{{ user.name }}</td>
+                                    <td>
+                                        <span class="badge bg-primary">{{ user.reservation_count }}</span>
+                                    </td>
+                                    <td>{{ user.created_at.strftime('%d/%m/%Y') }}</td>
+                                    <td>
+                                        <a href="{{ url_for('admin.manage_reservations', user=user.name) }}" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <p class="text-center text-muted">Aucune donnée disponible.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

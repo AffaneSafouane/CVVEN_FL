@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block content %}
+  <div class="container mt-4">
+    <h1 class="mb-4">{{ title }}</h1>
+    <h3>Manage Time Slots for {{ activity.title }}</h3>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="alert alert-{{ messages[0][0] }}">
+          {{ messages[0][1] }}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <!-- Time Slot Form -->
+    <form method="POST">
+      {{ form.hidden_tag() }}
+      <div class="mb-3">
+        <label for="start_time" class="form-label">Start Time</label>
+        <select id="start_time" name="start_time" class="form-select" required>
+          <option value="">Choose a time slot</option>
+          {% for time_option in form.time_options %}
+            <option value="{{ time_option }}" {% if form.start_time.data == time_option %}selected{% endif %}>{{ time_option }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="mb-3">
+        <label for="available_slots" class="form-label">Available Slots</label>
+        <input type="number" name="available_slots" id="available_slots" class="form-control" value="{{ form.available_slots.data }}" min="1" max="100" required>
+      </div>
+
+      <div class="mb-3">
+        <label for="duration_minutes" class="form-label">Duration (minutes)</label>
+        <input type="number" name="duration_minutes" id="duration_minutes" class="form-control" value="{{ form.duration_minutes.data }}" readonly>
+      </div>
+
+      <button type="submit" class="btn btn-primary">Save Time Slot</button>
+    </form>
+
+    <hr>
+
+    <!-- Time Slots Table -->
+    <h4 class="mt-4">Existing Time Slots</h4>
+    {% if time_slots %}
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>Start Time</th>
+            <th>End Time</th>
+            <th>Available Slots</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for slot in time_slots %}
+            <tr>
+              <td>{{ slot.start_time.strftime('%Y-%m-%d %H:%M') }}</td>
+              <td>{{ slot.end_time.strftime('%Y-%m-%d %H:%M') }}</td>
+              <td>{{ slot.available_slots }}</td>
+              <td>
+                <!-- Form to send POST request for deletion -->
+                <form action="{{ url_for('admin.delete_time_slot', id=slot.id) }}" method="POST" style="display: inline;">
+                    <!-- You can add a CSRF token if using Flask-WTF for CSRF protection -->
+                    {{ form.hidden_tag() }}
+                    <button type="submit" class="btn btn-danger btn-sm">
+                        <i class="fas fa-trash"></i> Delete
+                    </button>
+                </form>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p>No time slots available for this activity.</p>
+    {% endif %}
+  </div>
+{% endblock %}

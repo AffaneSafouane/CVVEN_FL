@@ -1,0 +1,249 @@
+/* Styles personnalisés pour le site de réservation d'activités */
+
+/* Couleurs principales */
+:root {
+    --primary-color: #3498db;
+    --secondary-color: #2c3e50;
+    --accent-color: #f39c12;
+    --success-color: #2ecc71;
+    --danger-color: #e74c3c;
+    --light-gray: #f5f5f5;
+    --dark-gray: #777;
+}
+
+/* Styles généraux */
+body {
+    font-family: 'Roboto', sans-serif;
+    color: #333;
+    background-color: #f9f9f9;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
+    padding: 2rem 0;
+}
+
+.footer {
+    margin-top: auto;
+}
+
+/* Personnalisation des cartes */
+.card {
+    border: none;
+    border-radius: 10px;
+    overflow: hidden;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.card-img-top {
+    height: 200px;
+    object-fit: cover;
+}
+
+.card-header {
+    font-weight: bold;
+}
+
+/* Boutons stylisés */
+.btn {
+    border-radius: 5px;
+    padding: 0.5rem 1.5rem;
+    font-weight: 500;
+    transition: all 0.3s;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-primary:hover {
+    background-color: #2980b9;
+    border-color: #2980b9;
+}
+
+.btn-outline-primary {
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+/* Navigation */
+.navbar {
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-brand {
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+/* Page d'accueil */
+.hero-section {
+    padding: 3rem 0;
+    background-color: var(--light-gray);
+}
+
+/* Styles pour les activités */
+.activity-card {
+    height: 100%;
+}
+
+.activity-price {
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+.activity-rating i {
+    color: var(--accent-color);
+}
+
+/* Formulaires */
+.form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.25rem rgba(52, 152, 219, 0.25);
+}
+
+/* Badges */
+.badge {
+    font-weight: 500;
+    padding: 0.4em 0.8em;
+    border-radius: 4px;
+}
+
+/* Pagination */
+.page-link {
+    color: var(--primary-color);
+}
+
+.page-item.active .page-link {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+/* Animations */
+.fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Styles pour les avis */
+.review-box {
+    padding: 1rem;
+    border-left: 3px solid var(--primary-color);
+    margin-bottom: 1rem;
+    background-color: #f8f9fa;
+}
+
+/* Admin dashboard */
+.border-left-primary {
+    border-left: 4px solid var(--primary-color);
+}
+
+.border-left-success {
+    border-left: 4px solid var(--success-color);
+}
+
+.border-left-info {
+    border-left: 4px solid #17a2b8;
+}
+
+.border-left-warning {
+    border-left: 4px solid var(--accent-color);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .card-img-top {
+        height: 160px;
+    }
+    
+    .display-4 {
+        font-size: 2.5rem;
+    }
+}
+
+/* Utilités */
+.bg-light-gray {
+    background-color: var(--light-gray);
+}
+
+.text-accent {
+    color: var(--accent-color);
+}
+
+/* Style pour la section des filtres */
+.filter-section {
+    position: sticky;
+    top: 20px;
+}
+
+/* Style pour le calendrier de disponibilité */
+.time-slot {
+    cursor: pointer;
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    margin-bottom: 0.5rem;
+    transition: background-color 0.2s;
+}
+
+.time-slot:hover {
+    background-color: #e9f5ff;
+}
+
+.time-slot.selected {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+.time-slot.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background-color: #f2f2f2;
+}
+
+/* Style pour les étoiles de notation */
+.star-rating {
+    color: #ddd;
+    font-size: 1.5rem;
+}
+
+.star-rating .filled {
+    color: var(--accent-color);
+}
+
+/* Style pour le profil utilisateur */
+.profile-image {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+/* Style pour les messages flash */
+.alert {
+    border-radius: 8px;
+}
+
+/* Style pour les tableaux */
+.table-hover tbody tr:hover {
+    background-color: rgba(52, 152, 219, 0.1);
+}

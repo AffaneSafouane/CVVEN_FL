@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <!-- Sidebar pour les filtres -->
+    <div class="col-lg-3 mb-4">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Filtres</h5>
+            </div>
+            <div class="card-body">
+                <form method="GET" action="{{ url_for('activity.search_activities') }}">
+                    <div class="mb-3">
+                        {{ form.search_query.label(class="form-label") }}
+                        {{ form.search_query(class="form-control") }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.category.label(class="form-label") }}
+                        {{ form.category(class="form-select") }}
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Prix</label>
+                        <div class="row g-2">
+                            <div class="col">
+                                {{ form.min_price(class="form-control", placeholder="Min") }}
+                            </div>
+                            <div class="col">
+                                {{ form.max_price(class="form-control", placeholder="Max") }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        {{ form.location.label(class="form-label") }}
+                        {{ form.location(class="form-control") }}
+                    </div>
+                    <div class="d-grid">
+                        {{ form.submit(class="btn btn-primary") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        {% if current_user.is_authenticated and current_user.role == 'admin' %}
+        <div class="d-grid mt-3">
+            <a href="{{ url_for('activity.add_activity') }}" class="btn btn-success">
+                <i class="fas fa-plus me-1"></i> Ajouter une activité
+            </a>
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- Liste des activités -->
+    <div class="col-lg-9">
+        <!-- En-tête avec titre et info de filtrage -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="mb-0">
+                {% if category %}
+                Activités - {{ category.name }}
+                {% else %}
+                Toutes les activités
+                {% endif %}
+            </h2>
+            <span class="text-muted">
+                {{ activities.total }} résultat(s)
+            </span>
+        </div>
+        
+        {% if activities %}
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            {% for activity in activities %}
+            <div class="col">
+                <div class="card h-100 shadow-sm">
+                    {% if activity.image_url %}
+                    <img src="{{ url_for('static', filename='uploads/' + activity.image_url) }}" class="card-img-top" alt="{{ activity.title }}" style="height: 180px; object-fit: cover;">
+                    {% else %}
+                    <img src="{{ url_for('static', filename='images/default-activity.jpg') }}" class="card-img-top" alt="{{ activity.title }}" style="height: 180px; object-fit: cover;">
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ activity.title }}</h5>
+                        <p class="card-text small text-muted">
+                            <i class="fas fa-map-marker-alt me-1"></i> {{ activity.location }}
+                        </p>
+                        <p class="card-text">{{ activity.description|truncate(100) }}</p>
+                    </div>
+                    <div class="card-footer bg-white d-flex justify-content-between align-items-center">
+                        <span class="text-primary fw-bold">{{ activity.price|float }}€</span>
+                        <a href="{{ url_for('activity.activity_detail', id=activity.id) }}" class="btn btn-sm btn-outline-primary">
+                            Voir détails
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Pagination -->
+        {% if total_pages > 1 %}
+        <nav class="mt-4">
+            <ul class="pagination justify-content-center">
+                {% if page > 1 %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('activity.list_activities', page=page - 1, **request.args) }}">
+                        &laquo; &laquo; Précédent
+                    </a>
+                </li>
+                {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link">&laquo; &laquo; Précédent</span>
+                </li>
+                {% endif %}
+                
+                <!-- Page Numbers -->
+                {% for page_num in range(1, total_pages + 1) %}
+                    <li class="page-item {% if page_num == page %}active{% endif %}">
+                        <a class="page-link" href="{{ url_for('activity.list_activities', page=page_num, **request.args) }}">
+                            {{ page_num }}
+                        </a>
+                    </li>
+                {% endfor %}
+
+                <!-- Next Page -->
+                {% if page < total_pages %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('activity.list_activities', page=page + 1, **request.args) }}">
+                        Suivant &raquo;
+                    </a>
+                </li>
+                {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link">Suivant &raquo;</span>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+        
+        {% else %}
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle me-2"></i> Aucune activité ne correspond à votre recherche.
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

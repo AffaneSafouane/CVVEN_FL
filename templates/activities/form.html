@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <section class="container px-4">
+        <div class="w-50 mx-auto">
+            <form method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
+                {{ form.hidden_tag() }}
+
+                <div class="mb-3">
+                    {{ form.title.label(class="form-label") }}
+                    {{ form.title(class="form-control", placeholder="Entrez le titre de l'activité") }}
+                </div>
+
+                <div class="mb-3">
+                    {{ form.description.label(class="form-label") }}
+                    {{ form.description(class="form-control", placeholder="Décrivez l'activité", rows="4") }}
+                </div>
+
+                <div class="mb-3">
+                    {{ form.price.label(class="form-label") }}
+                    {{ form.price(class="form-control", placeholder="Prix en €") }}
+                </div>
+
+                <div class="mb-3">
+                    {{ form.duration.label(class="form-label") }}
+                    {{ form.duration(class="form-control", placeholder="Durée en minutes") }}
+                </div>
+
+                <div class="mb-3">
+                    {{ form.location.label(class="form-label") }}
+                    {{ form.location(class="form-control", placeholder="Lieu de l'activité") }}
+                </div>
+
+                <div class="mb-3">
+                    {{ form.category_id.label(class="form-label") }}
+                    {{ form.category_id(class="form-select") }}
+                </div>
+
+                <div class="mb-3">
+                    {{ form.max_participants.label(class="form-label") }}
+                    {{ form.max_participants(class="form-control", placeholder="Nombre maximum de participants") }}
+                </div>
+
+                <div class="mb-3">
+                    {{ form.image.label(class="form-label") }}
+                    {{ form.image(class="form-control") }}
+                </div>
+
+                <div class="mt-4">
+                    {{ form.submit(class="btn btn-primary") }}
+                </div>
+            </form>
+        </div>
+    </section>
+{% endblock %}

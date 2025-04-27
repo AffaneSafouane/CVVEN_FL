@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1>{{ title }}</h1>
+
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('activity.search_activities') }}">
+                        {{ form.hidden_tag() }}
+
+                        <div class="form-group mb-3">
+                            {{ form.search_query.label(class="form-label") }}
+                            {{ form.search_query(class="form-control", placeholder="Entrez un mot-clé") }}
+                            {% if form.search_query.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.search_query.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group mb-3">
+                            {{ form.category.label(class="form-label") }}
+                            {{ form.category(class="form-select") }}
+                            {% if form.category.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.category.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    {{ form.min_price.label(class="form-label") }}
+                                    {{ form.min_price(class="form-control", placeholder="Prix minimum") }}
+                                    {% if form.min_price.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.min_price.errors %}
+                                                <span>{{ error }}</span>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    {{ form.max_price.label(class="form-label") }}
+                                    {{ form.max_price(class="form-control", placeholder="Prix maximum") }}
+                                    {% if form.max_price.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.max_price.errors %}
+                                                <span>{{ error }}</span>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            {{ form.location.label(class="form-label") }}
+                            {{ form.location(class="form-control", placeholder="Lieu") }}
+                            {% if form.location.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.location.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group mt-4 text-center">
+                            <button type="submit" class="btn btn-primary">Rechercher</button>
+                            <a href="{{ url_for('activity.list_activities') }}" class="btn btn-outline-secondary">Réinitialiser</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
