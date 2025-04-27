@@ -70,8 +70,8 @@ README.md
 
 1. Cloner le dépôt
 ```
-git clone https://github.com/votre-nom/reservation-activites.git
-cd reservation-activites
+git clone https://github.com/AffaneSafouane/CVVEN_FL.git
+cd CVVEN_FL
 ```
 
 2. Créer un environnement virtuel et l'activer
